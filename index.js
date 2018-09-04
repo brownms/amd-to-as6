@@ -90,7 +90,7 @@ function convert (source, options) {
 
         // if no import name assigned then create one
         if (!dependenciesMap[moduleName]) {
-            dependenciesMap[moduleName] = makeImportName(node.arguments[0].value);
+            dependenciesMap[moduleName] = makeImportName(node.arguments[0].value, options.importNameProvider);
         }
 
         // replace with the import name
@@ -355,7 +355,13 @@ function isDefineUsingIdentifier(node) {
  * @param {string} moduleName
  * @returns {string}
  */
-function makeImportName (moduleName) {
+function makeImportName (moduleName, customNameFunction) {
+    if (typeof customNameFunction === 'function') {
+        var customName = customNameFunction(moduleName);
+        if (customName && customName.length > 0) {
+            return customName;
+        }
+    }
     return '$__' + moduleName.replace(/[^a-zA-Z]/g, '_');
 }
 

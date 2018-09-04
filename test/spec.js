@@ -5,14 +5,15 @@ var readFile = function (name) {
     return fs.readFileSync('test/examples/' + name + '.js', 'utf8');
 };
 
-var makeTest = function (name) {
+var makeTest = function (name, options = {}) {
+    var allOptions = Object.assign({}, {beautify: true}, options);
 
     var baseTestName = 'test ' + name.replace(/-/g, ' ');
     var expectedOutputFileName = readFile(name.replace(/-arrow$/, '') + '-expected');
 
     var makeTestCase = function (inputFilename) {
         return function (test) {
-            test.equal(amdToEs6(readFile(inputFilename), {beautify: true}), expectedOutputFileName);
+            test.equal(amdToEs6(readFile(inputFilename), allOptions), expectedOutputFileName);
             test.done();
         };        
     };
@@ -22,12 +23,13 @@ var makeTest = function (name) {
 
 };
 makeTest('define-with-deps');
-makeTest('define-no-deps');
+makeTest('define-no-deps'); 
 makeTest('require-with-deps');
 makeTest('require-no-deps');
 makeTest('inline-sync-requires');
 makeTest('preserve-quotes');
 makeTest('use-strict');
+makeTest('inline-require-custom-naming', { importNameProvider: (moduleName) => 'customName' });
 
 var makeErrorCaseTest = function (name, message) {
 
